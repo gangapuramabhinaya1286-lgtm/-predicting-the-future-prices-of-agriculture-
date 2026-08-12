@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Predicting the Future Prices of Agriculture</title>
+
+<!-- FIXED Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#0c3d2f;
+color:white;
+text-align:center;
+}
+
+header{
+background:#06261d;
+padding:20px;
+font-size:28px;
+}
+
+.page{
+display:none;
+padding:30px;
+}
+
+.active{
+display:block;
+}
+
+input,select,textarea{
+width:80%;
+padding:10px;
+margin:10px;
+border-radius:6px;
+border:none;
+}
+
+button{
+padding:12px 25px;
+margin:10px;
+background:#39d98a;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.card{
+background:#08352a;
+padding:15px;
+margin:10px;
+border-radius:10px;
+}
+
+table{
+width:90%;
+margin:auto;
+border-collapse:collapse;
+}
+
+th,td{
+padding:8px;
+border-bottom:1px solid gray;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+🌾 Predicting the Future Prices of Agriculture
+</header>
+
+<!-- LOGIN -->
+<div class="page active" id="page1">
+<h2>Login</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<br>
+<button onclick="login()">Login</button>
+<p>New user?</p>
+<button onclick="nextPage(2)">Register</button>
+</div>
+
+<!-- REGISTER -->
+<div class="page" id="page2">
+<h2>Registration</h2>
+<input placeholder="Full Name">
+<input type="number" placeholder="Age">
+<input type="date">
+<input type="email" placeholder="Email">
+<input type="tel" placeholder="Phone Number">
+<textarea placeholder="Personal Info"></textarea>
+<br>
+<button onclick="nextPage(1)">Back</button>
+<button onclick="nextPage(3)">Submit</button>
+</div>
+
+<!-- CROP -->
+<div class="page" id="page3">
+<h2>Select Crop</h2>
+<select>
+<option>Rice</option>
+<option>Wheat</option>
+<option>Tomato</option>
+<option>Onion</option>
+<option>Potato</option>
+<option>Chilli</option>
+<option>Cotton</option>
+</select>
+<br>
+<button onclick="nextPage(4)">Next</button>
+</div>
+
+<!-- AREA -->
+<div class="page" id="page4">
+<h2>Market Area</h2>
+<input placeholder="Example: Hyderabad">
+<br>
+<button onclick="nextPage(3)">Back</button>
+<button onclick="nextPage(5)">Next</button>
+</div>
+
+<!-- PERIOD -->
+<div class="page" id="page5">
+<h2>Forecast Period</h2>
+<select>
+<option>1 Week</option>
+<option>1 Month</option>
+<option>3 Months</option>
+</select>
+<br>
+<button onclick="nextPage(4)">Back</button>
+<button onclick="nextPage(6)">Next</button>
+</div>
+
+<!-- PRICE -->
+<div class="page" id="page6">
+<h2>Enter Price ₹</h2>
+<input id="price" type="number" placeholder="Enter price">
+<br>
+<button onclick="nextPage(5)">Back</button>
+<button onclick="calculate()">Predict</button>
+</div>
+
+<!-- SUMMARY -->
+<div class="page" id="page7">
+<h2>Summary</h2>
+<div class="card">Current: ₹ <span id="current"></span></div>
+<div class="card">Forecast: ₹ <span id="forecast"></span></div>
+<div class="card">Peak: ₹ <span id="peak"></span></div>
+<div class="card">Low: ₹ <span id="low"></span></div>
+<button onclick="nextPage(6)">Back</button>
+<button onclick="nextPage(8)">Next</button>
+</div>
+
+<!-- CHART -->
+<div class="page" id="page8">
+<h2>Chart</h2>
+<canvas id="chart"></canvas>
+<br>
+<button onclick="nextPage(7)">Back</button>
+<button onclick="nextPage(9)">Next</button>
+</div>
+
+<!-- TABLE -->
+<div class="page" id="page9">
+<h2>Table</h2>
+<table>
+<tr><th>Day</th><th>Price</th></tr>
+<tbody id="tableData"></tbody>
+</table>
+<br>
+<button onclick="nextPage(8)">Back</button>
+<button onclick="nextPage(10)">Next</button>
+</div>
+
+<!-- FINAL SETTINGS -->
+<div class="page" id="page10">
+<h2>Settings</h2>
+<p>Restart system</p>
+<button onclick="location.reload()">Reset</button>
+</div>
+
+<script>
+
+let chart;
+
+function nextPage(p){
+document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+document.getElementById("page"+p).classList.add("active");
+}
+
+function login(){
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
+
+if(u==="NASA" && p==="NASA@4"){
+nextPage(3);
+}else{
+alert("Wrong login");
+}
+}
+
+function calculate(){
+
+let current=parseFloat(document.getElementById("price").value);
+
+if(isNaN(current)){
+alert("Enter valid price");
+return;
+}
+
+let forecast=current+Math.random()*100;
+let peak=forecast+Math.random()*100;
+let low=current-Math.random()*50;
+
+document.getElementById("current").innerHTML=current.toFixed(2);
+document.getElementById("forecast").innerHTML=forecast.toFixed(2);
+document.getElementById("peak").innerHTML=peak.toFixed(2);
+document.getElementById("low").innerHTML=low.toFixed(2);
+
+generateChart(current);
+generateTable(current);
+
+nextPage(7);
+}
+function generateChart(base){
+let labels=[],data=[];
+for(let i=1;i<=10;i++){
+labels.push("Day "+i);
+data.push(base+i*5+Math.random()*10);
+}
+let ctx=document.getElementById("chart");
+if(chart) chart.destroy();
+chart=new Chart(ctx,{
+type:"line",
+data:{
+labels:labels,
+datasets:[{
+label:"Forecast",
+data:data
+}]
+}
+});
+}
+function generateTable(base){
+let html="";
+
+for(let i=1;i<=10;i++){
+let price=base+i*5+Math.random()*10;
+html+=`<tr><td>${i}</td><td>₹${price.toFixed(2)}</td></tr>`;
+}
+
+document.getElementById("tableData").innerHTML=html;
+}
+
+</script>
+
+</body>
+</html>
